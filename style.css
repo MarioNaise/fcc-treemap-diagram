@@ -9,3 +9,14 @@ body{
   align-items: center;
   font-family: "Arial", sans-serif;
 }
+
+#tooltip{
+  background-color: rgba(50,50,50 ,.7);
+  position: absolute;
+  color: white;
+  border-radius: 5px;
+  display: none;
+}
+#tooltip p{
+  margin: 1rem;
+}
