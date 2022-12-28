@@ -9,7 +9,6 @@ const svg = d3.select("#canvas")
   .attr("width", w)
   .attr("height", h)
 
-// colorscale
 
 
 d3.json(gameDataURL)
@@ -17,6 +16,9 @@ d3.json(gameDataURL)
   if(err)  return console.log(err);
 
   console.log(data)
+
+  const categories = data.children.map(d => d.name)
+  const dataset = data.children.map(d => d.children).flat()
 
   // give the data to this cluster layout
   const root = d3.hierarchy(data.children[2]).sum(d=>d.value)
@@ -27,7 +29,10 @@ d3.json(gameDataURL)
     .padding(p)
     (root)
 
-  // group data
+  // colorscale
+  const colorScale = d3.scaleOrdinal()
+    .domain(categories)
+    .range(d3.schemePaired)
   
   // render cells
   svg
@@ -40,7 +45,7 @@ d3.json(gameDataURL)
       .attr("width", d => d.x1 - d.x0)
       .attr("height", d => d.y1 - d.y0)
       .style("stroke", "black")
-      .style("fill", "slateblue")
+      .style("fill", (d) => colorScale(d.data.category))
       .attr("class", "tile")
 })
 
