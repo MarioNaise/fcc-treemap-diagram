@@ -3,7 +3,10 @@ movieDataURL = "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map
 gameDataURL = "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json",
 w = 800,
 h = 600,
-p = 2;
+p = 2,
+legendW = 300,
+legendH = 500,
+legendP = 5;
 
 const svg = d3.select("#canvas")
   .attr("width", w)
@@ -15,12 +18,17 @@ const tooltip = d3
   .append("div")
   .attr("id", "tooltip");
 
+const legend = d3
+  .select("body")
+  .append("svg")
+  .attr("id", "legend")
+  .attr("height", legendH)
+  .attr("widht", legendW);
+
 
 d3.json(gameDataURL)
 .then((data, err)=>{
   if(err)  return console.log(err);
-
-  console.log(data)
 
   const categories = data.children.map(d => d.name)
 
@@ -72,29 +80,46 @@ d3.json(gameDataURL)
                   tooltip.style("display", "none")
                 })
   
-  svg
-    .selectAll("vals")
-    .data(root.leaves())
+   svg.selectAll('text')
+      .data(root.leaves())
+      .enter()
+      .append('text')
+      .selectAll('tspan')
+      .data(d => {
+          return d.data.name.split(/(?=[A-Z][^A-Z])/g)
+              .map(v => {
+                  return {
+                      text: v,
+                      x0: d.x0,
+                      y0: d.y0
+                  }
+              });
+      })
+      .enter()
+      .append('tspan')
+      .attr("x", (d) => d.x0 + 5)
+      .attr("y", (d, i) => d.y0 + 13 + i * 10)
+      .text((d) => d.text)
+      .attr("font-size", "0.6em")
+      .attr("fill", "black");
+
+  legend.selectAll("rect")
+    .data(categories)
     .enter()
-    .append("text")
-      .attr("x", d => d.x0 + 5)
-      .attr("y", d => d.y0 + 10)
-      .text(d => d.data.name)
-      .attr("font-size", "11px")
-      .attr("fill", "white")
+    .append("rect")
+      .attr("class", "legend-item")
+      .attr("height", legendH / categories.length - legendP)
+      .attr("width", legendH / categories.length - legendP)
+      .attr("fill", d => colorScale(d))
+      .attr("y", (d, i) => (legendH / categories.length) * i)
 
+  legend.selectAll("text")
+      .data(categories)
+      .enter()
+      .append("text")
+        .text(d => d)
+        .attr("x", (d, i) => (legendH / categories.length) + legendP)
+        .attr("y", (d, i) => (legendH / categories.length) * i + (legendH / categories.length) - legendP * 2)
+        .attr("font-size", "1em")
+        .attr("fill", "black");
 })
-
-/*
-d3.json(movieDataURL)
-.then((data, err)=>{
-  if(err)  return console.log(err);
-  console.log(data)
-})
-
-d3.json(kickstarterDataURL)
-.then((data, err)=>{
-  if(err)  return console.log(err);
-  console.log(data)
-})
-*/
