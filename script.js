@@ -30,6 +30,12 @@ d3.json(gameDataURL)
 .then((data, err)=>{
   if(err)  return console.log(err);
 
+  data.children = data.children.sort((a, b)=>{
+    const valueSumA = a.children.reduce((partialSum, a) => partialSum + parseInt(a.value), 0);
+    const valueSumB = b.children.reduce((partialSum, b) => partialSum + parseInt(b.value), 0);
+    return valueSumB - valueSumA;
+  })
+
   const categories = data.children.map(d => d.name)
 
   // give the data to this cluster layout
